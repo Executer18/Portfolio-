@@ -900,7 +900,7 @@
 
 <script>
   // ─── API CONFIG ───
-  const API_BASE = 'https://portfolio-api.kushalsh9123.workers.dev';  // Change to your deployed Worker URL (no trailing slash)
+  const API_BASE = 'http://localhost:8787';  // Change to your deployed Worker URL (no trailing slash)
 
   // ─── STATE ───
   let adminToken = null;   // Bearer token stored in memory (not localStorage)
@@ -1041,6 +1041,7 @@
     };
     document.getElementById('headerTitle').textContent = titles[name][0];
     document.getElementById('headerSub').textContent   = titles[name][1];
+    if (name !== 'overview') refreshAll();
     if (name === 'overview') renderOverview();
     if (name === 'reviews')  renderReviews();
     if (name === 'messages') renderMessages();
@@ -1066,7 +1067,12 @@
     }
     updateBadges();
     renderOverview();
+    if (document.getElementById('tab-chats').classList.contains('active')) renderChatSessions();
   }
+
+  // Keep the dashboard live: new visitor chats, messages and reviews show up
+  // without a manual reload (every 8s, only while logged in and the tab is visible).
+  setInterval(() => { if (adminToken && !document.hidden) refreshAll(); }, 8000);
 
   function updateBadges() {
     const pending = allReviews.filter(r => r.status === 'pending').length;
